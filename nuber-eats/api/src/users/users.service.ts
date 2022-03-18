@@ -5,11 +5,14 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { EditProfileInput } from './dtos/edit-profile.dto';
+import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createAccount({
@@ -25,6 +28,7 @@ export class UsersService {
       await this.usersRepository.save(
         this.usersRepository.create({ email, password, role }),
       );
+
       return { ok: true };
     } catch (e) {
       return { ok: false, error: "Couldn't create account" };
@@ -41,10 +45,22 @@ export class UsersService {
       if (!passwordCorrect) {
         return { ok: false, error: 'Wrong password' };
       }
+      const token = this.jwtService.sign(user.id);
 
-      return { ok: true, token: 'mooping' };
+      return { ok: true, token };
     } catch (error) {
       return { ok: false, error };
     }
+  }
+
+  async findById(id: number): Promise<User> {
+    return this.usersRepository.findOne({ where: { id } });
+  }
+
+  async editProfile(userId: number, { email, password }: EditProfileInput) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    user.email = email;
+    user.password = password;
+    return this.usersRepository.save(user);
   }
 }
