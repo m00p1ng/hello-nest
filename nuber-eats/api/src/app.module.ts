@@ -17,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { User } from './users/entities/user.entity';
+import { Verification } from './users/entities/verification.entity';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { User } from './users/entities/user.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       synchronize: true,
-      entities: [User],
+      entities: [User, Verification],
       logging: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
