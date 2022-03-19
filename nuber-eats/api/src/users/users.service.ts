@@ -11,6 +11,7 @@ import { UserProfileOutput } from './dtos/user-profile.dto';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
 
 import { JwtService } from '../jwt/jwt.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
@@ -19,6 +20,7 @@ export class UserService {
     @InjectRepository(Verification)
     private readonly verificationRepository: Repository<Verification>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   async createAccount({
@@ -34,9 +36,10 @@ export class UserService {
       const user = await this.usersRepository.save(
         this.usersRepository.create({ email, password, role }),
       );
-      await this.verificationRepository.save(
+      const verification = await this.verificationRepository.save(
         this.verificationRepository.create({ user }),
       );
+      this.mailService.sendVerificationEmail(user.email, verification.code);
 
       return { ok: true };
     } catch (e) {
@@ -85,9 +88,10 @@ export class UserService {
       if (email) {
         user.email = email;
         user.verified = false;
-        await this.verificationRepository.save(
+        const verification = await this.verificationRepository.save(
           this.verificationRepository.create({ user }),
         );
+        this.mailService.sendVerificationEmail(user.email, verification.code);
       }
       if (password) {
         user.password = password;
@@ -108,7 +112,8 @@ export class UserService {
 
       if (verification) {
         verification.user.verified = true;
-        this.usersRepository.save(verification.user);
+        await this.usersRepository.save(verification.user);
+        await this.verificationRepository.delete(verification.id);
         return { ok: true };
       }
 
