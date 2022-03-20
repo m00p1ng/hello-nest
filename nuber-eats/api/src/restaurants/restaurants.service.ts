@@ -19,6 +19,7 @@ import {
   DeleteRestaurantOutput,
 } from './dtos/delete-restaurant.dto';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
+import { CategoryInput, CategoryOutput } from './dtos/category.dto';
 
 import { CategoryRepository } from './repositories/category.repository';
 
@@ -124,5 +125,23 @@ export class RestaurantService {
 
   countRestaurants(category: Category): Promise<number> {
     return this.restaurantRepository.count({ category });
+  }
+
+  async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
+    try {
+      const category = await this.categoryRepository.findOne(
+        { slug },
+        { relations: ['restaurants'] },
+      );
+      if (!category) {
+        return { ok: false, error: 'Category not found' };
+      }
+      return {
+        ok: true,
+        category,
+      };
+    } catch (error) {
+      return { ok: false, error: 'Could not load category' };
+    }
   }
 }
