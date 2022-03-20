@@ -13,7 +13,7 @@ import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 
 import { AuthGuard } from '../auth/auth.guard';
-import { AuthUser } from 'src/auth/auth-user.decorator';
+import { AuthUser } from '../auth/auth-user.decorator';
 
 @Resolver(() => User)
 export class UserResolver {
