@@ -99,7 +99,7 @@ export class UserService {
       await this.usersRepository.save(user);
       return { ok: true };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: 'Could not update profile' };
     }
   }
 
@@ -119,7 +119,7 @@ export class UserService {
 
       return { ok: false, error: 'Verification not found' };
     } catch (error) {
-      return { ok: false, error };
+      return { ok: false, error: 'Could not verify email' };
     }
   }
 }
