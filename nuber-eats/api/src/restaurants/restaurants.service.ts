@@ -14,6 +14,12 @@ import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './dtos/edit-restaurant.dto';
+import {
+  DeleteRestaurantInput,
+  DeleteRestaurantOutput,
+} from './dtos/delete-restaurant.dto';
+import { AllCategoriesOutput } from './dtos/all-categories.dto';
+
 import { CategoryRepository } from './repositories/category.repository';
 
 @Injectable()
@@ -79,5 +85,44 @@ export class RestaurantService {
     } catch (error) {
       return { ok: false, error: 'Could not edit Restaurant' };
     }
+  }
+
+  async deleteRestaurant(
+    owner: User,
+    deleteRestaurantInput: DeleteRestaurantInput,
+  ): Promise<DeleteRestaurantOutput> {
+    try {
+      const restaurant = await this.restaurantRepository.findOne({
+        where: { id: deleteRestaurantInput.restaurantId },
+      });
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant not found' };
+      }
+      if (owner.id !== restaurant.ownerId) {
+        return {
+          ok: false,
+          error: "You can't delete a restaurant that you don't own",
+        };
+      }
+      await this.restaurantRepository.delete(
+        deleteRestaurantInput.restaurantId,
+      );
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: 'Could not delete Restaurant' };
+    }
+  }
+
+  async allCategories(): Promise<AllCategoriesOutput> {
+    try {
+      const categories = await this.categoryRepository.find();
+      return { ok: true, categories };
+    } catch (error) {
+      return { ok: false, error: 'Could not load categories' };
+    }
+  }
+
+  countRestaurants(category: Category): Promise<number> {
+    return this.restaurantRepository.count({ category });
   }
 }
