@@ -24,8 +24,10 @@ import { MailModule } from './mail/mail.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath:
+        process.env.NODE_ENV === 'develop' ? '.env.develop' : '.env.test',
       validationSchema: Joi.object({
+        NODE_ENV: Joi.string().valid('develop', 'test').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
@@ -46,7 +48,8 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_DATABASE,
       synchronize: true,
       entities: [User, Verification],
-      logging: true,
+      logging: process.env.NODE_ENV === 'develop',
+      keepConnectionAlive: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
