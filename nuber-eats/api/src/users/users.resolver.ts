@@ -14,7 +14,7 @@ import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 
 import { AuthGuard } from '../auth/auth.guard';
 import { AuthUser } from '../auth/auth-user.decorator';
-import { Role } from 'src/auth/role.decorator';
+import { Role } from '../auth/role.decorator';
 
 @Resolver(() => User)
 export class UserResolver {
