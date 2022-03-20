@@ -21,7 +21,12 @@ describe('UserModule (e2e)', () => {
   let verificationRepository: Repository<Verification>;
   let jwtToken: string;
 
-  beforeEach(async () => {
+  const baseTest = () => request(app.getHttpServer()).post(GRAPHQL_ENDPOINT);
+  const publicTest = (query: string) => baseTest().send({ query });
+  const privateTest = (query: string) =>
+    baseTest().set('X-JWT', jwtToken).send({ query });
+
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -41,21 +46,17 @@ describe('UserModule (e2e)', () => {
 
   describe('createAccount', () => {
     it('should create account', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
-            mutation {
-              createAccount(input: {
-                email: "${testUser.email}",
-                password: "${testUser.password}",
-                role: Owner
-              }) {
-                ok
-                error
-              }
-            }`,
-        })
+      return publicTest(/* GraphQL */ `
+        mutation {
+          createAccount(input: {
+            email: "${testUser.email}",
+            password: "${testUser.password}",
+            role: Owner
+          }) {
+            ok
+            error
+          }
+        }`)
         .expect(200)
         .expect((res) => {
           expect(res.body.data.createAccount.ok).toBe(true);
@@ -64,10 +65,7 @@ describe('UserModule (e2e)', () => {
     });
 
     it('should fail if account already exists', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
+      return publicTest(/* GraphQL */ `
           mutation {
             createAccount(input: {
               email: "${testUser.email}",
@@ -77,35 +75,35 @@ describe('UserModule (e2e)', () => {
               ok
               error
             }
-          }`,
-        })
+          }`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.data.createAccount.ok).toBe(false);
-          expect(res.body.data.createAccount.error).toEqual(
-            'There is a user with that email already',
-          );
+          const {
+            body: {
+              data: {
+                createAccount: { ok, error },
+              },
+            },
+          } = res;
+          expect(ok).toBe(false);
+          expect(error).toEqual('There is a user with that email already');
         });
     });
   });
 
   describe('login', () => {
     it('should login with correct credential', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
-            mutation {
-              login(input: {
-                email: "${testUser.email}",
-                password: "${testUser.password}",
-              }) {
-                ok
-                error
-                token
-              }
-            }`,
-        })
+      return publicTest(/* GraphQL */ `
+          mutation {
+            login(input:{
+              email: "${testUser.email}",
+              password: "${testUser.password}",
+            }) {
+              ok
+              error
+              token
+            }
+          }`)
         .expect(200)
         .expect((res) => {
           const {
@@ -121,19 +119,15 @@ describe('UserModule (e2e)', () => {
     });
 
     it('should not be able to login with wrong credential', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
-            mutation {
-              login(input: { email: "${testUser.email}", password: "hacker" }) {
-                ok
-                error
-                token
-              }
+      return publicTest(/* GraphQL */ `
+          mutation {
+            login(input: { email: "${testUser.email}", password: "hacker" }) {
+              ok
+              error
+              token
             }
-          `,
-        })
+          }
+        `)
         .expect(200)
         .expect((res) => {
           const {
@@ -149,29 +143,24 @@ describe('UserModule (e2e)', () => {
   });
 
   describe('userProfile', () => {
-    let userId;
+    let userId: number;
     beforeAll(async () => {
       const [user] = await userRepository.find();
       userId = user.id;
     });
 
     it("should see a user's profile", () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .set('X-JWT', jwtToken)
-        .send({
-          query: /* GraphQL */ `
-            query {
-              userProfile(userId: ${userId}) {
-                ok
-                error
-                user {
-                  id
-                }
+      return privateTest(`
+          {
+            userProfile(userId:${userId}){
+              ok
+              error
+              user {
+                id
               }
             }
-          `,
-        })
+          }
+        `)
         .expect(200)
         .expect((res) => {
           const {
@@ -185,30 +174,23 @@ describe('UserModule (e2e)', () => {
               },
             },
           } = res;
-
           expect(ok).toBe(true);
-          expect(error).toBeNull();
+          expect(error).toBe(null);
           expect(id).toBe(userId);
         });
     });
-
     it('should not find a profile', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .set('X-JWT', jwtToken)
-        .send({
-          query: /* GraphQL */ `
-            query {
-              userProfile(userId: 6666) {
-                ok
-                error
-                user {
-                  id
-                }
-              }
+      return privateTest(/* GraphQL */ `
+        query {
+          userProfile(userId: 6666) {
+            ok
+            error
+            user {
+              id
             }
-          `,
-        })
+          }
+        }
+      `)
         .expect(200)
         .expect((res) => {
           const {
@@ -228,18 +210,13 @@ describe('UserModule (e2e)', () => {
 
   describe('me', () => {
     it('should find my profile', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .set('X-JWT', jwtToken)
-        .send({
-          query: /* GraphQL */ `
-            query {
-              me {
-                email
-              }
+      return privateTest(`
+          {
+            me {
+              email
             }
-          `,
-        })
+          }
+        `)
         .expect(200)
         .expect((res) => {
           const {
@@ -255,17 +232,13 @@ describe('UserModule (e2e)', () => {
     });
 
     it('should not allow logged out user', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
-            query {
-              me {
-                email
-              }
+      return publicTest(`
+          {
+            me {
+              email
             }
-          `,
-        })
+          }
+        `)
         .expect(200)
         .expect((res) => {
           const {
@@ -281,19 +254,14 @@ describe('UserModule (e2e)', () => {
 
   describe('editProfile', () => {
     it('should change email', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .set('X-JWT', jwtToken)
-        .send({
-          query: /* GraphQL */ `
-            mutation {
-              editProfile(input: { email: "my_new_email@email.com" }) {
-                ok
-                error
-              }
-            }
-          `,
-        })
+      return privateTest(/* GraphQL */ `
+        mutation {
+          editProfile(input: { email: "my_new_email@email.com" }) {
+            ok
+            error
+          }
+        }
+      `)
         .expect(200)
         .expect((res) => {
           const {
@@ -317,18 +285,14 @@ describe('UserModule (e2e)', () => {
     });
 
     it('should verify email', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
+      return publicTest(/* GraphQL */ `
           mutation {
             verifyEmail(input: { code: "${verificationCode}" }) {
               ok
               error
             }
           }
-        `,
-        })
+        `)
         .expect(200)
         .expect((res) => {
           const {
@@ -342,20 +306,15 @@ describe('UserModule (e2e)', () => {
           expect(error).toBeNull();
         });
     });
-
     it('should fail on verification code not found', () => {
-      return request(app.getHttpServer())
-        .post(GRAPHQL_ENDPOINT)
-        .send({
-          query: /* GraphQL */ `
-            mutation {
-              verifyEmail(input: { code: "eeee" }) {
-                ok
-                error
-              }
-            }
-          `,
-        })
+      return publicTest(/* GraphQL */ `
+        mutation {
+          verifyEmail(input: { code: "eeee" }) {
+            ok
+            error
+          }
+        }
+      `)
         .expect(200)
         .expect((res) => {
           const {
