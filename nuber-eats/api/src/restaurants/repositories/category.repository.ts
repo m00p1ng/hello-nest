@@ -7,9 +7,7 @@ export class CategoryRepository extends Repository<Category> {
   async getOrCreateCategory(name: string): Promise<Category> {
     const categoryName = name.trim().toLowerCase();
     const categorySlug = categoryName.replace(/ /g, '-');
-    let category = await this.findOne({
-      where: { slug: categorySlug },
-    });
+    let category = await this.findOne({ slug: categorySlug });
 
     if (!category) {
       category = await this.save(

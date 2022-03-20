@@ -57,7 +57,7 @@ export class RestaurantService {
   ): Promise<EditRestaurantOutput> {
     try {
       const restaurant = await this.restaurantRepository.findOne({
-        where: { id: editRestaurantInput.restaurantId },
+        id: editRestaurantInput.restaurantId,
       });
       if (!restaurant) {
         return { ok: false, error: 'Restaurant not found' };
@@ -93,7 +93,7 @@ export class RestaurantService {
   ): Promise<DeleteRestaurantOutput> {
     try {
       const restaurant = await this.restaurantRepository.findOne({
-        where: { id: deleteRestaurantInput.restaurantId },
+        id: deleteRestaurantInput.restaurantId,
       });
       if (!restaurant) {
         return { ok: false, error: 'Restaurant not found' };

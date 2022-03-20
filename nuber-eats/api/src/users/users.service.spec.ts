@@ -135,7 +135,10 @@ describe('UserService', () => {
       const result = await service.login(loginArgs);
 
       expect(userRepository.findOne).toHaveBeenCalledTimes(1);
-      expect(userRepository.findOne).toHaveBeenCalledWith(expect.any(Object));
+      expect(userRepository.findOne).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Object),
+      );
       expect(result).toEqual({
         ok: false,
         error: 'User not found',
@@ -209,7 +212,7 @@ describe('UserService', () => {
 
       expect(userRepository.findOne).toHaveBeenCalledTimes(1);
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        where: { id: editProfileArgs.userId },
+        id: editProfileArgs.userId,
       });
       expect(verificationRepository.create).toHaveBeenCalledWith({
         user: newUser,
@@ -258,6 +261,7 @@ describe('UserService', () => {
 
       expect(verificationRepository.findOne).toHaveBeenCalledTimes(1);
       expect(verificationRepository.findOne).toHaveBeenCalledWith(
+        expect.any(Object),
         expect.any(Object),
       );
       expect(userRepository.save).toHaveBeenCalledTimes(1);

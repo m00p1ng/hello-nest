@@ -29,7 +29,7 @@ export class UserService {
     role,
   }: CreateAccountInput): Promise<{ ok: boolean; error?: string }> {
     try {
-      const exists = await this.usersRepository.findOne({ where: { email } });
+      const exists = await this.usersRepository.findOne({ email });
       if (exists) {
         return { ok: false, error: 'There is a user with that email already' };
       }
@@ -49,10 +49,10 @@ export class UserService {
 
   async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
-      const user = await this.usersRepository.findOne({
-        where: { email },
-        select: ['id', 'password'],
-      });
+      const user = await this.usersRepository.findOne(
+        { email },
+        { select: ['id', 'password'] },
+      );
       if (!user) {
         return { ok: false, error: 'User not found' };
       }
@@ -82,9 +82,7 @@ export class UserService {
     { email, password }: EditProfileInput,
   ): Promise<EditProfileOutput> {
     try {
-      const user = await this.usersRepository.findOne({
-        where: { id: userId },
-      });
+      const user = await this.usersRepository.findOne({ id: userId });
       if (email) {
         user.email = email;
         user.verified = false;
@@ -106,10 +104,10 @@ export class UserService {
 
   async verifyEmail(code: string): Promise<VerifyEmailOutput> {
     try {
-      const verification = await this.verificationRepository.findOne({
-        where: { code },
-        relations: ['user'],
-      });
+      const verification = await this.verificationRepository.findOne(
+        { code },
+        { relations: ['user'] },
+      );
 
       if (verification) {
         verification.user.verified = true;
