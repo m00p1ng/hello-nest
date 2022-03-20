@@ -150,8 +150,8 @@ describe('UserModule (e2e)', () => {
     });
 
     it("should see a user's profile", () => {
-      return privateTest(`
-          {
+      return privateTest(/* GraphQL */ `
+          query {
             userProfile(userId:${userId}){
               ok
               error
@@ -210,13 +210,13 @@ describe('UserModule (e2e)', () => {
 
   describe('me', () => {
     it('should find my profile', () => {
-      return privateTest(`
-          {
-            me {
-              email
-            }
+      return privateTest(/* GraphQL */ `
+        query {
+          me {
+            email
           }
-        `)
+        }
+      `)
         .expect(200)
         .expect((res) => {
           const {
@@ -232,13 +232,13 @@ describe('UserModule (e2e)', () => {
     });
 
     it('should not allow logged out user', () => {
-      return publicTest(`
-          {
-            me {
-              email
-            }
+      return publicTest(/* GraphQL */ `
+        query {
+          me {
+            email
           }
-        `)
+        }
+      `)
         .expect(200)
         .expect((res) => {
           const {
