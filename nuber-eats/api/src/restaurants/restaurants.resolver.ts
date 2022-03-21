@@ -27,6 +27,8 @@ import {
 } from './dtos/delete-restaurant.dto';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
+import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
+import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
 
 import { Role } from '../auth/role.decorator';
 import { AuthUser } from '../auth/auth-user.decorator';
@@ -68,6 +70,13 @@ export class RestaurantResolver {
       deleteRestaurantInput,
     );
   }
+
+  @Query(() => RestaurantsOutput)
+  restaurants(
+    @Args('input') restaurantsInput: RestaurantsInput,
+  ): Promise<RestaurantsOutput> {
+    return this.restaurantService.allRestaurants(restaurantsInput);
+  }
 }
 
 @Resolver(() => Category)
@@ -85,7 +94,16 @@ export class CategoryResolver {
   }
 
   @Query(() => CategoryOutput)
-  category(@Args() categoryInput: CategoryInput): Promise<CategoryOutput> {
+  category(
+    @Args('input') categoryInput: CategoryInput,
+  ): Promise<CategoryOutput> {
     return this.restaurantService.findCategoryBySlug(categoryInput);
+  }
+
+  @Query(() => RestaurantOutput)
+  restaurant(
+    @Args('input') restaurantInput: RestaurantInput,
+  ): Promise<RestaurantsOutput> {
+    return this.restaurantService.findRestaurantById(restaurantInput);
   }
 }

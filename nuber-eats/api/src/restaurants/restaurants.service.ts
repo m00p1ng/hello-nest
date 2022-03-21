@@ -20,6 +20,8 @@ import {
 } from './dtos/delete-restaurant.dto';
 import { AllCategoriesOutput } from './dtos/all-categories.dto';
 import { CategoryInput, CategoryOutput } from './dtos/category.dto';
+import { RestaurantsInput, RestaurantsOutput } from './dtos/restaurants.dto';
+import { RestaurantInput, RestaurantOutput } from './dtos/restaurant.dto';
 
 import { CategoryRepository } from './repositories/category.repository';
 
@@ -127,21 +129,62 @@ export class RestaurantService {
     return this.restaurantRepository.count({ category });
   }
 
-  async findCategoryBySlug({ slug }: CategoryInput): Promise<CategoryOutput> {
+  async findCategoryBySlug({
+    slug,
+    page,
+  }: CategoryInput): Promise<CategoryOutput> {
     try {
-      const category = await this.categoryRepository.findOne(
-        { slug },
-        { relations: ['restaurants'] },
-      );
+      const category = await this.categoryRepository.findOne({ slug });
       if (!category) {
         return { ok: false, error: 'Category not found' };
       }
+      const restaurants = await this.restaurantRepository.find({
+        where: category,
+        take: 25,
+        skip: (page - 1) * 25,
+      });
+      category.restaurants = restaurants;
+      const totalResults = await this.countRestaurants(category);
+
       return {
         ok: true,
         category,
+        totalPages: Math.ceil(totalResults / 25),
       };
     } catch (error) {
       return { ok: false, error: 'Could not load category' };
+    }
+  }
+
+  async allRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
+    try {
+      const [restaurants, totalResults] =
+        await this.restaurantRepository.findAndCount({
+          skip: (page - 1) * 25,
+          take: 25,
+        });
+      return {
+        ok: true,
+        results: restaurants,
+        totalPages: Math.ceil(totalResults / 25),
+      };
+    } catch (error) {
+      return { ok: false, error: 'Could not load restaurants' };
+    }
+  }
+
+  async findRestaurantById({
+    restaurantId,
+  }: RestaurantInput): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurantRepository.findOne(restaurantId);
+      if (!restaurant) {
+        return { ok: false, error: 'Restaurant not found' };
+      }
+
+      return { ok: true, restaurant };
+    } catch (error) {
+      return { ok: false, error: 'Could not find restaurant' };
     }
   }
 }
