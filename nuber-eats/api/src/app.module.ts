@@ -18,6 +18,7 @@ import { MailModule } from './mail/mail.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 
 import { Category } from './restaurants/entities/category.entity';
+import { Dish } from './restaurants/entities/dish.entity';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
@@ -51,9 +52,9 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       synchronize: true,
-      entities: [User, Verification, Restaurant, Category],
+      entities: [User, Verification, Restaurant, Category, Dish],
       logging: process.env.NODE_ENV === 'develop',
-      keepConnectionAlive: true,
+      // keepConnectionAlive: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
