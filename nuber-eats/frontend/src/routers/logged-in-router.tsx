@@ -8,6 +8,9 @@ import { NotFound } from "../pages/404";
 import { Restaurants } from "../pages/client/restaurants";
 import { ConfirmEmail } from "../pages/user/confirm-email";
 import { EditProfile } from "../pages/user/edit-profile";
+import { Search } from "../pages/client/search";
+import { Category } from "../pages/client/category";
+import { Restaurant } from "../pages/client/restaurant";
 
 const ClientRouter = () => {
   return (
@@ -15,6 +18,9 @@ const ClientRouter = () => {
       <Route path="/" element={<Restaurants />} />
       <Route path="/confirm" element={<ConfirmEmail />} />
       <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="/category/:slug" element={<Category />} />
+      <Route path="/restaurants/:id" element={<Restaurant />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )
