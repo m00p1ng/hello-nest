@@ -16,12 +16,15 @@ import { JwtModule } from './jwt/jwt.module';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
+import { OrdersModule } from './orders/orders.module';
 
 import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
 import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
+import { Order } from './orders/entities/order.entity';
+import { OrderItem } from './orders/entities/order-item.entity';
 
 import { JwtMiddleware } from './jwt/jwt.middleware';
 
@@ -52,7 +55,15 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       synchronize: true,
-      entities: [User, Verification, Restaurant, Category, Dish],
+      entities: [
+        Category,
+        Dish,
+        Order,
+        OrderItem,
+        Restaurant,
+        User,
+        Verification,
+      ],
       logging: process.env.NODE_ENV === 'develop',
       // keepConnectionAlive: true,
     }),
@@ -69,11 +80,12 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
       domain: process.env.MAILGUN_DOMAIN_NAME,
     }),
-    UsersModule,
-    RestaurantsModule,
-    CommonModule,
     AuthModule,
+    CommonModule,
     MailModule,
+    OrdersModule,
+    RestaurantsModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],

@@ -7,10 +7,11 @@ import {
 import { InternalServerErrorException } from '@nestjs/common';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
 
 import { CoreEntity } from '../../common/entities/core.entity';
 import { Restaurant } from '../../restaurants/entities/restaurant.entity';
-import { IsBoolean, IsEmail, IsEnum, IsString } from 'class-validator';
+import { Order } from '../../orders/entities/order.entity';
 
 export enum UserRole {
   Owner = 'Owner',
@@ -47,6 +48,14 @@ export class User extends CoreEntity {
   @Field(() => [Restaurant])
   @OneToMany(() => Restaurant, (restaurant) => restaurant.owner)
   restaurants: Restaurant[];
+
+  @Field(() => [Order])
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
+
+  @Field(() => [Order])
+  @OneToMany(() => Order, (order) => order.driver)
+  rides: Order[];
 
   @BeforeInsert()
   @BeforeUpdate()
