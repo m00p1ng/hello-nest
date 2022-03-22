@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 
 import { Payment } from './entities/payment.entity';
 import { Restaurant } from '../restaurants/entities/restaurant.entity';
@@ -11,6 +11,7 @@ import {
   CreatePaymentOutput,
 } from './dtos/create-payment.dto';
 import { GetPaymentsOutput } from './dtos/get-payments.dto';
+import { Interval } from '@nestjs/schedule';
 
 @Injectable()
 export class PaymentService {
@@ -39,6 +40,10 @@ export class PaymentService {
           error: 'You are not allowed to do this',
         };
       }
+      restaurant.isPromoted = true;
+      const date = new Date();
+      date.setDate(date.getDate() + 7);
+      restaurant.promotedUntil = date;
       await this.paymentRepository.save(
         this.paymentRepository.create({
           transactionId,
@@ -67,5 +72,19 @@ export class PaymentService {
         error: 'Could not load payments',
       };
     }
+  }
+
+  @Interval(20000)
+  async checkPromotedRestaurants() {
+    const restaurants = await this.restaurantRepository.find({
+      isPromoted: true,
+      promotedUntil: LessThan(new Date()),
+    });
+    console.log(restaurants);
+    restaurants.forEach(async (restaurant) => {
+      restaurant.isPromoted = false;
+      restaurant.promotedUntil = null;
+      await this.restaurantRepository.save(restaurant);
+    });
   }
 }
