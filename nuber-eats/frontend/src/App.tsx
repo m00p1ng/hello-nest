@@ -1,10 +1,8 @@
+import { LoggedOutRouter } from './routers/logged-out-router'
+
 function App() {
   return (
-    <div className="bg-black">
-      <div className="text-lg">
-        mooping
-      </div>
-    </div>
+    <LoggedOutRouter />
   )
 }
 
