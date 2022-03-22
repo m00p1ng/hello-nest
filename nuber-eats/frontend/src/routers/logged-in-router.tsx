@@ -1,14 +1,21 @@
 import { Fragment } from "react";
 import { Routes, Route } from 'react-router-dom'
 
-import { Restaurants } from "../pages/client/restaurants";
 import { useMe } from '../hooks/useMe'
 import { Header } from "../components/header";
+
+import { NotFound } from "../pages/404";
+import { Restaurants } from "../pages/client/restaurants";
+import { ConfirmEmail } from "../pages/user/confirm-email";
+import { EditProfile } from "../pages/user/edit-profile";
 
 const ClientRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Restaurants />} />
+      <Route path="/confirm" element={<ConfirmEmail />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
