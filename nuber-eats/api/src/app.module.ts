@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,8 +20,6 @@ import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
-
-import { JwtMiddleware } from './jwt/jwt.middleware';
 
 @Module({
   imports: [
@@ -65,12 +58,20 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
         Verification,
       ],
       logging: process.env.NODE_ENV === 'develop',
-      // keepConnectionAlive: true,
+      keepConnectionAlive: true,
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
+      installSubscriptionHandlers: true,
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] }),
+      context: ({ req, connection }) => {
+        const TOKEN_KEY = 'x-jwt';
+        if (req) {
+          return { token: req.headers[TOKEN_KEY] };
+        } else if (connection) {
+          return { token: connection.context[TOKEN_KEY] };
+        }
+      },
     }),
     JwtModule.forRoot({
       secretKey: process.env.SECRET_KEY,
@@ -90,11 +91,4 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: '/graphql',
-      method: RequestMethod.POST,
-    });
-  }
-}
+export class AppModule {}
