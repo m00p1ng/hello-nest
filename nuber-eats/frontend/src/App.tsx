@@ -1,9 +1,9 @@
-import { useState } from 'react'
-
 function App() {
   return (
-    <div className="App">
-      mooping
+    <div className="bg-black">
+      <div className="text-lg">
+        mooping
+      </div>
     </div>
   )
 }
