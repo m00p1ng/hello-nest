@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { OrdersModule } from './orders/orders.module';
+import { PaymentsModule } from './payments/payments.module';
 
 import { Category } from './restaurants/entities/category.entity';
 import { Dish } from './restaurants/entities/dish.entity';
@@ -20,6 +21,7 @@ import { User } from './users/entities/user.entity';
 import { Verification } from './users/entities/verification.entity';
 import { Order } from './orders/entities/order.entity';
 import { OrderItem } from './orders/entities/order-item.entity';
+import { Payment } from './payments/entities/payment.entity';
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
         Restaurant,
         User,
         Verification,
+        Payment,
       ],
       logging: process.env.NODE_ENV === 'develop',
       keepConnectionAlive: true,
@@ -87,6 +90,7 @@ import { OrderItem } from './orders/entities/order-item.entity';
     OrdersModule,
     RestaurantsModule,
     UsersModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],
