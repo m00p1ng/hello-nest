@@ -6,7 +6,7 @@ import { HelmetProvider } from 'react-helmet-async'
 
 import "./index.css";
 
-import App from './App'
+import App from './components/app'
 import { client } from './apollo'
 
 ReactDOM.render(
