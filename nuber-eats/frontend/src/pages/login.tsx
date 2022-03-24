@@ -8,7 +8,7 @@ import { Button } from '../components/button'
 import { LOCAL_STORAGE_TOKEN } from '../constants'
 import { authTokenVar, isLoggedInVar } from "../apollo";
 
-const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
     login(input: $loginInput) {
       ok

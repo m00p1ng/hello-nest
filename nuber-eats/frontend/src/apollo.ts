@@ -1,5 +1,6 @@
 import { ApolloClient, createHttpLink, InMemoryCache, makeVar } from "@apollo/client"
 import { setContext } from '@apollo/client/link/context'
+import fetch from 'cross-fetch'
 
 import { LOCAL_STORAGE_TOKEN } from "./constants"
 
@@ -8,7 +9,8 @@ export const isLoggedInVar = makeVar(Boolean(token));
 export const authTokenVar = makeVar(token);
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql'
+  uri: 'http://localhost:3000/graphql',
+  fetch,
 })
 
 const authLink = setContext((_, { headers }) => {

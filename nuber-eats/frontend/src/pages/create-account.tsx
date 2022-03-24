@@ -6,7 +6,7 @@ import { Helmet } from 'react-helmet-async'
 import { FormError } from '../components/form-error'
 import { Button } from '../components/button'
 
-const CREATE_ACCOUNT_MUTATION = gql`
+export const CREATE_ACCOUNT_MUTATION = gql`
   mutation createAccountMutation($createAccountInput: CreateAccountInput!) {
     createAccount(input: $createAccountInput) {
       ok
@@ -15,7 +15,7 @@ const CREATE_ACCOUNT_MUTATION = gql`
   }
 `
 
-enum UserRole {
+export enum UserRole {
   Client = 'Client',
   Delivery = 'Delivery',
   Owner = 'Owner'
