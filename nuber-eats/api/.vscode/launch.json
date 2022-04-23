@@ -20,6 +20,12 @@
       "cwd": "${workspaceRoot}",
       "console": "integratedTerminal",
       "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Debug Nest Framework (attach)",
+      "port": 9229
     }
   ]
 }
